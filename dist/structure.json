@@ -1,0 +1,52 @@
+{
+    "components": [
+        {
+            "name": "GranParent",
+            "defaultExport": true,
+            "components": [
+                {
+                    "name": "Parent1",
+                    "components": [
+                        {
+                            "name": "Child"
+                        }
+                    ]
+                },
+                {
+                    "name": "Parent2"
+                }
+            ],
+            "services": [
+                {
+                    "name": "GranService"
+                }
+            ],
+            "pipes": [
+                {
+                    "name": "GranPipe"
+                }
+            ],
+            "directives": [
+                {
+                    "name": "GranDirective"
+                }
+            ]
+        }
+    ],
+    "services": [
+        {
+            "name": "GlobalService",
+            "providedInRoot": true
+        }
+    ],
+    "pipes": [
+        {
+            "name": "GlobalPipe"
+        }
+    ],
+    "directives": [
+        {
+            "name": "GlobalDirective"
+        }
+    ]
+}
