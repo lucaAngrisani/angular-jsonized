@@ -37,7 +37,7 @@ if (options.touch) {
 }
 
 if (options.jsonfile) {
-    const file = require(`./${options.jsonfile}`);
+    const file = require(`${options.jsonfile}`);
     if (file)
         generate(file);
 }
