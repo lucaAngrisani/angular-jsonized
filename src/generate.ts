@@ -71,14 +71,17 @@ function generateComponent(component: Component, parentPath: string = ''): Compo
 
     const content: string = `
 import { Component${component.inputs?.length ? `, input` : ''}${component.models?.length ? `, model` : ''}${component.outputs?.length ? `, output` : ''}${innerModels?.length ? `, signal` : ''} } from '@angular/core';
-${[...innerComponents?.map(comp => `import { ${getComponentName(comp.name)} } from './${comp.dirPath}';`) ?? [],
-        ...innerServices?.filter(service => !service?.providedInRoot)?.map(serv => `import { ${getServiceName(serv.name)} } from './${serv.dirPath}';`) ?? [],
-        ...innerPipes?.filter(pipe => pipe?.standalone)?.map(pipe => `import { ${getPipeName(pipe.name)} } from './${pipe.dirPath}';`) ?? [],
-        ...innerDirectives?.filter(directive => directive?.standalone)?.map(directive => `import { ${getDirectiveName(directive.name)} } from './${directive.dirPath}';`) ?? [],
-        ...component.inputs?.filter(input => input?.importTypeUrl)?.map(input => `import { ${input.type} } from '${input.importTypeUrl}';`) ?? [],
-        ...component.outputs?.filter(output => output?.importTypeUrl)?.map(output => `import { ${output.type} } from '${output.importTypeUrl}';`) ?? [],
-        ...component.models?.filter(model => model?.importTypeUrl)?.map(model => `import { ${model.type} } from '${model.importTypeUrl}';`) ?? []
-        ]?.join('\n')}
+${[...new Set([...innerComponents?.map(comp => `import { ${getComponentName(comp.name)} } from './${comp.dirPath}';`) ?? [],
+    ...innerServices?.filter(service => !service?.providedInRoot)?.map(serv => `import { ${getServiceName(serv.name)} } from './${serv.dirPath}';`) ?? [],
+    ...innerPipes?.filter(pipe => pipe?.standalone)?.map(pipe => `import { ${getPipeName(pipe.name)} } from './${pipe.dirPath}';`) ?? [],
+    ...innerDirectives?.filter(directive => directive?.standalone)?.map(directive => `import { ${getDirectiveName(directive.name)} } from './${directive.dirPath}';`) ?? [],
+    ...component.inputs?.filter(input => input?.importTypeUrl)?.map(input => `import { ${input.type} } from '${input.importTypeUrl}';`) ?? [],
+    ...component.outputs?.filter(output => output?.importTypeUrl)?.map(output => `import { ${output.type} } from '${output.importTypeUrl}';`) ?? [],
+    ...component.models?.filter(model => model?.importTypeUrl)?.map(model => `import { ${model.type} } from '${model.importTypeUrl}';`) ?? [],
+    ...innerInputs?.filter(input => input?.importTypeUrl)?.map(input => `import { ${input.type} } from '${input.importTypeUrl}';`) ?? [],
+    ...innerOutputs?.filter(output => output?.importTypeUrl)?.map(output => `import { ${output.type} } from '${output.importTypeUrl}';`) ?? [],
+    ...innerModels?.filter(model => model?.importTypeUrl)?.map(model => `import { ${model.type} } from '${model.importTypeUrl}';`) ?? []
+    ])]?.join('\n')}
 
 @Component({
     standalone: ${component.standalone},
@@ -98,14 +101,14 @@ ${[...innerComponents?.map(comp => `import { ${getComponentName(comp.name)} } fr
 })
 ${component.defaultExport ? 'export default' : 'export'} class ${getComponentName(component.name)} {
     ${[
-            ...innerInputs?.map(innerInput => `${innerInput.name}: ${innerInput.type}${(innerInput.initialValue != null || innerInput.initialValue != undefined) ? ` = ${JSON.stringify(innerInput.initialValue)}` : ''};`) ?? [],
+            ...innerInputs?.map(innerInput => `${innerInput.name}${(innerInput.initialValue != null || innerInput.initialValue != undefined) ? ` = ${JSON.stringify(innerInput.initialValue)}` : `!: ${innerInput.type}`};`) ?? [],
             ...innerModels?.map(innerModel => `${innerModel.name} = signal<${innerModel.type}>(${(innerModel.initialValue != null || innerModel.initialValue != undefined) ? JSON.stringify(innerModel.initialValue) : ''});`) ?? [],
             ...component.inputs?.map(input => `${input.name} = input${input.required ? '.required' : ''}<${input.type}>(${(input.initialValue != null || input.initialValue != undefined) ? JSON.stringify(input.initialValue) : ''}${input.alias ? `, { alias: '${input.alias}' }` : ''});`) ?? [],
             ...component.outputs?.map(output => `${output.name} = output<${output.type}>();`) ?? [],
             ...component.models?.map(model => `${model.name} = model${model.required ? '.required' : ''}<${model.type}>(${(model.initialValue != null || model.initialValue != undefined) ? JSON.stringify(model.initialValue) : ''}${model.alias ? `, { alias: '${model.alias}' }` : ''});`) ?? []
         ].reduce((acc, curr) => acc += curr + '\n\t', '')}\n\tconstructor() { }${innerOutputs.length ? '\n' : ''}
     ${[
-            ...innerOutputs?.map(innerOutput => `${innerOutput.name}Change(event: ${innerOutput.type ?? 'any'}) { }`) ?? []
+            ...innerOutputs?.map(innerOutput => `${innerOutput.name}Change(event: ${innerOutput.type ?? 'any'}) { throw Error('Implement method') }`) ?? []
         ].join('\n\t')}
 }`;
 
@@ -114,7 +117,7 @@ ${component.defaultExport ? 'export default' : 'export'} class ${getComponentNam
         ...comp.inputs?.map(input => `[${input.alias ?? input.name}]="${input.name}"`) ?? [],
         ...comp.outputs?.map(output => `(${output.alias ?? output.name})="${output.name}Change($event)"`) ?? [],
         ...comp.models?.map(model => `[(${model.alias ?? model.name})]="${model.name}"`) ?? [],
-    ].join('\n')}></${comp.selector}>`).join('\n\t')}` : ''}
+    ].join('\n\t')}></${comp.selector}>`).join('\n')}` : ''}
 `;
 
     try {
@@ -147,7 +150,7 @@ import { Injectable } from '@angular/core';
     providedIn: 'root'
 }` : ''})
 export class ${getServiceName(service.name)} {
-    constructor() {}
+    constructor() { }
 }`;
 
     try {
