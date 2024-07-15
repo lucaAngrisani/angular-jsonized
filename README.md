@@ -23,6 +23,7 @@ export type Component = Elem & {
   components: Component[];
   inputs: Input[];
   outputs: Output[];
+  models: Model[];
   services: Service[];
   pipes: Pipe[];
   directives: Directive[];
@@ -45,16 +46,29 @@ export type Directive = Elem & {
   selector: string;
 };
 
-export type Input = {
+export type Input<T = any> = {
   name: string;
   type: string;
   importTypeUrl: string;
+  initialValue: T;
+  required: boolean;
+  alias: string;
 };
 
 export type Output = {
   name: string;
   type: string;
   importTypeUrl: string;
+  alias: string;
+};
+
+export type Model<T = any> = {
+  name: string;
+  type: string;
+  importTypeUrl: string;
+  initialValue: T;
+  required: boolean;
+  alias: string;
 };
 
 type Elem = {
@@ -79,16 +93,21 @@ type Elem = {
         {
           "name": "exampleInput",
           "type": "string",
-          "importTypeUrl": ""
+          "importTypeUrl": "",
+          "initialValue": "",
+          "required": true,
+          "alias": "exInput"
         }
       ],
       "outputs": [
         {
           "name": "exampleOutput",
           "type": "EventEmitter<any>",
-          "importTypeUrl": "@angular/core"
+          "importTypeUrl": "@angular/core",
+          "alias": "exOutput"
         }
       ],
+      "models": [],
       "services": [],
       "pipes": [],
       "directives": [],
@@ -113,36 +132,24 @@ type Elem = {
 
 ## Installation
 
-1. Clone the repository:
+1. Add globally the custom CLI:
 
-   ```bash
-   git clone https://github.com/your-username/angular-component-generator-cli.git
    ```
-
-2. Navigate to the project directory:
-
-   ```bash
-   cd angular-component-generator-cli
-   ```
-
-3. Install the dependencies:
-
-   ```bash
-   npm install
-   ```
-
-4. Build the project:
-   ```bash
-   npm run build
+   npm install -g angular-jsonized
    ```
 
 ## Usage
 
-Run the CLI with the JSON configuration file as an argument:
+1. Go to the desired directory of the project:
 
-```bash
-node dist/index.js path/to/configuration.json
-```
+   ```
+   cd <your-location>
+   ```
+
+2. Run the script with correct JSON file configuration:
+   ```
+   ngjson -g <your-json-conf-file-location>
+   ```
 
 ### Options
 
@@ -153,8 +160,8 @@ node dist/index.js path/to/configuration.json
 
 Assuming you have a JSON configuration file called `config.json` in the current directory, run:
 
-```bash
-node dist/index.js config.json
+```
+ngjson -g config.json
 ```
 
 ## Contributions
