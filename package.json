@@ -10,14 +10,28 @@
     "build": "npx tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "description": "",
   "dependencies": {
     "commander": "^12.1.0",
     "figlet": "^1.7.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucaAngrisani/mapper-factory.git"
+  },
+  "keywords": [
+    "angular-custom-cli",
+    "generator angular file",
+    "angular jsonized",
+    "angular-jsonized",
+    "ngjson"
+  ],
+  "author": "lucaAngrisani",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lucaAngrisani/angular-jsonized/issues"
+  },
+  "homepage": "https://github.com/lucaAngrisani/angular-jsonized/blob/master/README.md",
   "devDependencies": {
     "@types/node": "^20.14.10",
     "typescript": "^5.5.3"

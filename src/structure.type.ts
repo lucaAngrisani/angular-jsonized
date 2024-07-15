@@ -35,13 +35,13 @@ export type Directive = Elem & {
     selector: string;
 }
 
-export type Input = {
+export type Input<T = any> = {
     name: string;
     type: string;
     importTypeUrl: string;
+    initialValue: T;
     required: boolean;
     alias: string;
-    transform: Function;
 }
 
 export type Output = {
@@ -51,10 +51,13 @@ export type Output = {
     alias: string;
 }
 
-export type Model = {
+export type Model<T = any> = {
     name: string;
     type: string;
     importTypeUrl: string;
+    initialValue: T;
+    required: boolean;
+    alias: string;
 }
 
 type Elem = {

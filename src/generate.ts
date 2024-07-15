@@ -1,7 +1,10 @@
 import { createDir, createFile, writeFile } from "./dir-manager";
-import { Component, Directive, Pipe, Service, Structure } from "./structure.type";
+import { Component, Directive, Input, Model, Output, Pipe, Service, Structure } from "./structure.type";
 
 export const generate = (file: Structure) => {
+
+    console.log('\nSTART GENERATING\n');
+
     for (const component of file.components) {
         generateComponent(component);
     }
@@ -62,15 +65,20 @@ function generateComponent(component: Component, parentPath: string = ''): Compo
     component.defaultExport = !!component.defaultExport;
     component.selector = component.selector ?? 'app-' + componentPathName;
 
-    const content = `
-import { Component${component.inputs?.length ? `, input` : ''}${component.outputs?.length ? `, output` : ''} } from '@angular/core';
-${[...innerComponents?.map(comp => `import { ${getComponentName(comp.name)} } from './${comp.dirPath}'`),
-        ...innerServices?.filter(service => !service?.providedInRoot)?.map(serv => `import { ${getServiceName(serv.name)} } from './${serv.dirPath}'`),
-        ...innerPipes?.filter(pipe => pipe?.standalone)?.map(pipe => `import { ${getPipeName(pipe.name)} } from './${pipe.dirPath}'`),
-        ...innerDirectives?.filter(directive => directive?.standalone)?.map(directive => `import { ${getDirectiveName(directive.name)} } from './${directive.dirPath}'`),
-        ...component.inputs?.filter(input => input.importTypeUrl)?.map(input => `import { ${getDirectiveName(input.name)} } from '${input.importTypeUrl}'`),
-        ...component.outputs?.filter(output => output.importTypeUrl)?.map(output => `import { ${getDirectiveName(output.name)} } from '${output.importTypeUrl}'`)
-        ]?.join(';\n')}
+    const innerInputs: Input[] = innerComponents?.filter(comp => comp.inputs?.length)?.map(comp => comp.inputs)?.reduce((acc, curr) => acc = acc.concat(curr), []);
+    const innerOutputs: Output[] = innerComponents?.filter(comp => comp.outputs?.length)?.map(comp => comp.outputs)?.reduce((acc, curr) => acc = acc.concat(curr), []);
+    const innerModels: Model[] = innerComponents?.filter(comp => comp.models?.length)?.map(comp => comp.models)?.reduce((acc, curr) => acc = acc.concat(curr), []);
+
+    const content: string = `
+import { Component${component.inputs?.length ? `, input` : ''}${component.models?.length ? `, model` : ''}${component.outputs?.length ? `, output` : ''}${innerModels?.length ? `, signal` : ''} } from '@angular/core';
+${[...innerComponents?.map(comp => `import { ${getComponentName(comp.name)} } from './${comp.dirPath}';`) ?? [],
+        ...innerServices?.filter(service => !service?.providedInRoot)?.map(serv => `import { ${getServiceName(serv.name)} } from './${serv.dirPath}';`) ?? [],
+        ...innerPipes?.filter(pipe => pipe?.standalone)?.map(pipe => `import { ${getPipeName(pipe.name)} } from './${pipe.dirPath}';`) ?? [],
+        ...innerDirectives?.filter(directive => directive?.standalone)?.map(directive => `import { ${getDirectiveName(directive.name)} } from './${directive.dirPath}';`) ?? [],
+        ...component.inputs?.filter(input => input?.importTypeUrl)?.map(input => `import { ${input.type} } from '${input.importTypeUrl}';`) ?? [],
+        ...component.outputs?.filter(output => output?.importTypeUrl)?.map(output => `import { ${output.type} } from '${output.importTypeUrl}';`) ?? [],
+        ...component.models?.filter(model => model?.importTypeUrl)?.map(model => `import { ${model.type} } from '${model.importTypeUrl}';`) ?? []
+        ]?.join('\n')}
 
 @Component({
     standalone: ${component.standalone},
@@ -82,21 +90,31 @@ ${[...innerComponents?.map(comp => `import { ${getComponentName(comp.name)} } fr
     ]` : '[]'},
     imports: ${innerComponents?.length || innerPipes?.length || innerDirectives?.length ? `[
         ${[
-                ...innerComponents?.map(comp => `${getComponentName(comp.name)}`),
-                ...innerPipes?.filter(pipe => pipe?.standalone)?.map(pipe => `${getPipeName(pipe.name)}`),
-                ...innerDirectives?.filter(directive => directive?.standalone)?.map(directive => `${getDirectiveName(directive.name)}`)
-            ]?.join(',\n\t\t')}
+                ...innerComponents?.map(comp => `${getComponentName(comp.name)},`) ?? [],
+                ...innerPipes?.filter(pipe => pipe?.standalone)?.map(pipe => `${getPipeName(pipe.name)},`) ?? [],
+                ...innerDirectives?.filter(directive => directive?.standalone)?.map(directive => `${getDirectiveName(directive.name)},`) ?? []
+            ]?.join('\n\t\t')}
     ]` : '[]'},
 })
 ${component.defaultExport ? 'export default' : 'export'} class ${getComponentName(component.name)} {
     ${[
-            ...component.inputs?.map(input => `${input.name} = input<${input.type}>()`),
-            ...component.outputs?.map(output => `${output.name} = output<${output.type}>()`)
-        ].join(';\n')}\n\tconstructor() {}
+            ...innerInputs?.map(innerInput => `${innerInput.name}: ${innerInput.type}${(innerInput.initialValue != null || innerInput.initialValue != undefined) ? ` = ${JSON.stringify(innerInput.initialValue)}` : ''};`) ?? [],
+            ...innerModels?.map(innerModel => `${innerModel.name} = signal<${innerModel.type}>(${(innerModel.initialValue != null || innerModel.initialValue != undefined) ? JSON.stringify(innerModel.initialValue) : ''});`) ?? [],
+            ...component.inputs?.map(input => `${input.name} = input${input.required ? '.required' : ''}<${input.type}>(${(input.initialValue != null || input.initialValue != undefined) ? JSON.stringify(input.initialValue) : ''}${input.alias ? `, { alias: '${input.alias}' }` : ''});`) ?? [],
+            ...component.outputs?.map(output => `${output.name} = output<${output.type}>();`) ?? [],
+            ...component.models?.map(model => `${model.name} = model${model.required ? '.required' : ''}<${model.type}>(${(model.initialValue != null || model.initialValue != undefined) ? JSON.stringify(model.initialValue) : ''}${model.alias ? `, { alias: '${model.alias}' }` : ''});`) ?? []
+        ].reduce((acc, curr) => acc += curr + '\n\t', '')}\n\tconstructor() { }${innerOutputs.length ? '\n' : ''}
+    ${[
+            ...innerOutputs?.map(innerOutput => `${innerOutput.name}Change(event: ${innerOutput.type ?? 'any'}) { }`) ?? []
+        ].join('\n\t')}
 }`;
 
     const templateContent: string = `
-<p>${component.selector} works!</p> ${component.components ? `\n\n${component.components?.map(comp => `<${comp.selector}></${comp.selector}>`).join('\n')}` : ''}
+<p>${component.selector} works!</p> ${component.components ? `\n\n${component.components?.map(comp => `<${comp.selector} ${[
+        ...comp.inputs?.map(input => `[${input.alias ?? input.name}]="${input.name}"`) ?? [],
+        ...comp.outputs?.map(output => `(${output.alias ?? output.name})="${output.name}Change($event)"`) ?? [],
+        ...comp.models?.map(model => `[(${model.alias ?? model.name})]="${model.name}"`) ?? [],
+    ].join('\n')}></${comp.selector}>`).join('\n\t')}` : ''}
 `;
 
     try {

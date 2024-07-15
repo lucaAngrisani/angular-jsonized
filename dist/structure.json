@@ -13,7 +13,31 @@
                     ]
                 },
                 {
-                    "name": "Parent2"
+                    "name": "Parent2",
+                    "inputs": [
+                        {
+                            "name": "inputTest",
+                            "initialValue": "",
+                            "alias": "inputTestAlias",
+                            "type": "string"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "name": "outputTest"
+                        }
+                    ],
+                    "models": [
+                        {
+                            "name": "modelTest",
+                            "type": "TestModel",
+                            "importTypeUrl": "./models/test",
+                            "initialValue": {
+                                "test1": "test1",
+                                "test2": "test2"
+                            }
+                        }
+                    ]
                 }
             ],
             "services": [
