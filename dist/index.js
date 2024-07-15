@@ -9,8 +9,8 @@ const figlet = require("figlet");
 const program = new Command();
 console.log(figlet.textSync("Angular JSONized"));
 program
-    .version("1.0.0")
-    .description("An example CLI for managing a directory")
+    .version("1.0.5")
+    .description("Custom CLI to generate complex skeleton in angular")
     .option("-l, --ls  [value]", "List directory contents")
     .option("-m, --mkdir <value>", "Create a directory")
     .option("-t, --touch <value>", "Create a file")
@@ -28,7 +28,7 @@ if (options.touch) {
     (0, dir_manager_1.createFile)(path.resolve(__dirname, options.touch));
 }
 if (options.jsonfile) {
-    const file = require(`./${options.jsonfile}`);
+    const file = require(`${options.jsonfile}`);
     if (file)
         (0, generate_1.generate)(file);
 }

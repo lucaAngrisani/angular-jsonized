@@ -6,14 +6,13 @@ const { Command } = require("commander"); // add this line
 
 const path = require("path");
 const figlet = require("figlet");
-const pjson = require('./package.json');
 
 const program = new Command();
 
 console.log(figlet.textSync("Angular JSONized"));
 
 program
-    .version(pjson.version)
+    .version("1.0.5")
     .description("Custom CLI to generate complex skeleton in angular")
     .option("-l, --ls  [value]", "List directory contents")
     .option("-m, --mkdir <value>", "Create a directory")
