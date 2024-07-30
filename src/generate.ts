@@ -23,7 +23,9 @@ export const generate = (file: Structure) => {
 };
 
 function generateComponent(component: Component, parentPath: string = ''): Component {
-    const componentPathName = component.name?.trim().replace(/[A-Z]/g, m => "-" + m.toLowerCase())?.replace(' ', '-');
+    const componentPathName = titleCaseToCamelCase(component.name?.trim() ?? '')
+        ?.replace(/[A-Z]/g, m => "-" + m.toLowerCase())
+        ?.replace(' ', '-');
 
     const dirPath = `${componentPathName}`;
     createDir(`${parentPath}${dirPath}`);
@@ -254,4 +256,11 @@ function getCamelCaseName(name: string): string {
     return name.replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
         return index === 0 ? word.toLowerCase() : word.toUpperCase();
     }).replace(/\s+/g, '');
+}
+
+function titleCaseToCamelCase(str: string) {
+    const result = str.replace(/(?:^\\w|[A-Z]|\\b\\w)/g, (letter, index) => {
+        return index === 0 ? letter.toLowerCase() : letter.toUpperCase();
+    }).replace(/\\s+/g, '');
+    return result;
 }
