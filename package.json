@@ -1,6 +1,6 @@
 {
   "name": "angular-jsonized",
-  "version": "1.0.7",
+  "version": "1.0.10",
   "main": "dist/index.js",
   "bin": {
     "ngjson": "./dist/index.js"
