@@ -23,7 +23,7 @@ export const generate = (file: Structure) => {
 };
 
 function generateComponent(component: Component, parentPath: string = ''): Component {
-    const componentPathName = component.name?.trim().toLowerCase()?.replace(' ', '-');
+    const componentPathName = component.name?.trim().replace(/[A-Z]/g, m => "-" + m.toLowerCase())?.replace(' ', '-');
 
     const dirPath = `${componentPathName}`;
     createDir(`${parentPath}${dirPath}`);
@@ -75,12 +75,12 @@ ${[...new Set([...innerComponents?.map(comp => `import { ${getComponentName(comp
     ...innerServices?.filter(service => !service?.providedInRoot)?.map(serv => `import { ${getServiceName(serv.name)} } from './${serv.dirPath}';`) ?? [],
     ...innerPipes?.filter(pipe => pipe?.standalone)?.map(pipe => `import { ${getPipeName(pipe.name)} } from './${pipe.dirPath}';`) ?? [],
     ...innerDirectives?.filter(directive => directive?.standalone)?.map(directive => `import { ${getDirectiveName(directive.name)} } from './${directive.dirPath}';`) ?? [],
-    ...component.inputs?.filter(input => input?.importTypeUrl)?.map(input => `import { ${input.type} } from '${input.importTypeUrl}';`) ?? [],
-    ...component.outputs?.filter(output => output?.importTypeUrl)?.map(output => `import { ${output.type} } from '${output.importTypeUrl}';`) ?? [],
-    ...component.models?.filter(model => model?.importTypeUrl)?.map(model => `import { ${model.type} } from '${model.importTypeUrl}';`) ?? [],
-    ...innerInputs?.filter(input => input?.importTypeUrl)?.map(input => `import { ${input.type} } from '${input.importTypeUrl}';`) ?? [],
-    ...innerOutputs?.filter(output => output?.importTypeUrl)?.map(output => `import { ${output.type} } from '${output.importTypeUrl}';`) ?? [],
-    ...innerModels?.filter(model => model?.importTypeUrl)?.map(model => `import { ${model.type} } from '${model.importTypeUrl}';`) ?? []
+    ...component.inputs?.filter(input => input?.importTypeUrl)?.map(input => `import { ${input.type.substring(0, input.type.indexOf('<') ? input.type.indexOf('<') : input.type.length)} } from '${input.importTypeUrl}';`) ?? [],
+    ...component.outputs?.filter(output => output?.importTypeUrl)?.map(output => `import { ${output.type.substring(0, output.type.indexOf('<') ? output.type.indexOf('<') : output.type.length)} } from '${output.importTypeUrl}';`) ?? [],
+    ...component.models?.filter(model => model?.importTypeUrl)?.map(model => `import { ${model.type.substring(0, model.type.indexOf('<') ? model.type.indexOf('<') : model.type.length)} } from '${model.importTypeUrl}';`) ?? [],
+    ...innerInputs?.filter(input => input?.importTypeUrl)?.map(input => `import { ${input.type.substring(0, input.type.indexOf('<') ? input.type.indexOf('<') : input.type.length)} } from '${input.importTypeUrl}';`) ?? [],
+    ...innerOutputs?.filter(output => output?.importTypeUrl)?.map(output => `import { ${output.type.substring(0, output.type.indexOf('<') ? output.type.indexOf('<') : output.type.length)} } from '${output.importTypeUrl}';`) ?? [],
+    ...innerModels?.filter(model => model?.importTypeUrl)?.map(model => `import { ${model.type.substring(0, model.type.indexOf('<') ? model.type.indexOf('<') : model.type.length)} } from '${model.importTypeUrl}';`) ?? []
     ])]?.join('\n')}
 
 @Component({
