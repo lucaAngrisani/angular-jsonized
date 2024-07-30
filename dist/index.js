@@ -9,7 +9,7 @@ const figlet = require("figlet");
 const program = new Command();
 console.log(figlet.textSync("Angular JSONized"));
 program
-    .version("1.0.5")
+    .version("1.0.7")
     .description("Custom CLI to generate complex skeleton in angular")
     .option("-l, --ls  [value]", "List directory contents")
     .option("-m, --mkdir <value>", "Create a directory")
@@ -28,7 +28,14 @@ if (options.touch) {
     (0, dir_manager_1.createFile)(path.resolve(__dirname, options.touch));
 }
 if (options.jsonfile) {
-    const file = require(`${options.jsonfile}`);
+    let file;
+    const isAbsolutePath = path.isAbsolute(options.jsonfile);
+    if (isAbsolutePath) {
+        file = require(`${options.jsonfile}`);
+    }
+    else {
+        file = require(options.jsonfile.startsWith('./') ? `${options.jsonfile}` : options.jsonfile.startsWith('/') ? `.${options.jsonfile}` : `./${options.jsonfile}`);
+    }
     if (file)
         (0, generate_1.generate)(file);
 }
