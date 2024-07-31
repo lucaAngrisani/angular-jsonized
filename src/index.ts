@@ -12,7 +12,7 @@ const program = new Command();
 console.log(figlet.textSync("Angular JSONized"));
 
 program
-    .version("1.0.11")
+    .version("1.0.12")
     .description("Custom CLI to generate complex skeleton in angular")
     .option("-l, --ls  [value]", "List directory contents")
     .option("-m, --mkdir <value>", "Create a directory")
