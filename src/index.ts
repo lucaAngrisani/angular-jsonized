@@ -12,7 +12,7 @@ const program = new Command();
 console.log(figlet.textSync("Angular JSONized"));
 
 program
-    .version("1.0.10")
+    .version("1.0.11")
     .description("Custom CLI to generate complex skeleton in angular")
     .option("-l, --ls  [value]", "List directory contents")
     .option("-m, --mkdir <value>", "Create a directory")
@@ -39,10 +39,18 @@ if (options.jsonfile) {
     let file;
 
     const isAbsolutePath = path.isAbsolute(options.jsonfile);
+
     if (isAbsolutePath) {
         file = require(`${options.jsonfile}`);
     } else {
-        file = require(options.jsonfile.startsWith('./') ? `${options.jsonfile}` : options.jsonfile.startsWith('/') ? `.${options.jsonfile}` : `./${options.jsonfile}`);
+        if (require.main) {
+            const dirPath = process.cwd();
+            const fileUrl = options.jsonfile.startsWith('./') ? `${dirPath}/${options.jsonfile.replace('./', '')}` : options.jsonfile.startsWith('/') ? `${dirPath}/${options.jsonfile.replace('/', '')}` : `${dirPath}/${options.jsonfile}`;
+
+            file = require(fileUrl);
+        } else {
+            file = require(`${options.jsonfile}`);
+        }
     }
 
     if (file)

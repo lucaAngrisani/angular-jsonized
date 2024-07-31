@@ -34,7 +34,14 @@ if (options.jsonfile) {
         file = require(`${options.jsonfile}`);
     }
     else {
-        file = require(options.jsonfile.startsWith('./') ? `${options.jsonfile}` : options.jsonfile.startsWith('/') ? `.${options.jsonfile}` : `./${options.jsonfile}`);
+        if (require.main) {
+            const dirPath = process.cwd();
+            const fileUrl = options.jsonfile.startsWith('./') ? `${dirPath}/${options.jsonfile.replace('./', '')}` : options.jsonfile.startsWith('/') ? `${dirPath}/${options.jsonfile.replace('/', '')}` : `${dirPath}/${options.jsonfile}`;
+            file = require(fileUrl);
+        }
+        else {
+            file = require(`${options.jsonfile}`);
+        }
     }
     if (file)
         (0, generate_1.generate)(file);
